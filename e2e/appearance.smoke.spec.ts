@@ -111,6 +111,7 @@ test('keeps New Project template hover states within the light palette', async (
   await ui.appearance.trigger(app.page).click()
   await ui.appearance.option(app.page, 'Light').click()
 
+  await app.page.locator('.task-project-actions > summary').click()
   await ui.toolbar.newProjectButton(app.page).click()
   const imperialTemplate = ui.newProjectDialog.template(app.page, 'Blank imperial')
   await imperialTemplate.hover()
@@ -140,6 +141,7 @@ test('keeps the operation add menu opaque and its guidance legible in the light 
   await ui.appearance.trigger(app.page).click()
   await ui.appearance.option(app.page, 'Light').click()
 
+  await app.page.locator('.task-function').filter({ hasText: 'Operations' }).click()
   await ui.operations.headerAddButton(app.page).click()
 
   await expect(ui.operations.addMenu(app.page)).toBeVisible()

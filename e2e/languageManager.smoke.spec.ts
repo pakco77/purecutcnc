@@ -32,6 +32,12 @@ function withoutModified(snapshot: Record<string, unknown>): Record<string, unkn
   return { ...snapshot, meta: stableMeta }
 }
 
+async function exposeProjectActions(page: Page): Promise<void> {
+  await page.locator('.task-project-actions').evaluate((element) => {
+    (element as HTMLDetailsElement).open = true
+  })
+}
+
 /** Open Language → Manage languages. */
 async function openManager(page: Page, ui: typeof import('./selectors')): Promise<void> {
   await ui.language.trigger(page).click()
@@ -73,6 +79,7 @@ test('duplicates English, translates a key, applies, activates, and persists', a
   await ui.languageManager.doneButton(app.page).click()
 
   // The translated key shows in the toolbar; everything else falls back.
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: 'Projekt speichern' })).toBeVisible()
   await expect(app.page.getByRole('button', { name: 'New project' })).toBeVisible()
   await expect(ui.language.trigger(app.page)).toHaveAttribute('aria-label', 'Language: Deutsch (Test)')
@@ -84,6 +91,7 @@ test('duplicates English, translates a key, applies, activates, and persists', a
   await app.page.reload()
   await app.page.waitForSelector('canvas', { timeout: 15000 })
   await expect(app.page.locator('html')).toHaveAttribute('lang', 'de')
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: 'Projekt speichern' })).toBeVisible()
 
   // The custom pack is selectable from the language menu.
@@ -128,6 +136,7 @@ test('preview persists the draft live and Cancel restores the saved state', asyn
   // The pack is active app-wide while previewing (dialogs overlay the shell,
   // so assert on the language trigger's accessible name).
   await expect(ui.language.trigger(app.page)).toHaveAttribute('aria-label', 'Language: English copy')
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: 'Projekt speichern' })).toBeVisible()
 
   // Cancel rolls back the draft and the previously active language.
@@ -135,6 +144,7 @@ test('preview persists the draft live and Cancel restores the saved state', asyn
   await expect(ui.languageEditor.dialog(app.page)).toBeHidden()
   await expect(app.page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(ui.language.trigger(app.page)).toHaveAttribute('aria-label', 'Language: English')
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: 'Save project' })).toBeVisible()
 
   // The duplicate survives Cancel, but without the previewed translation.

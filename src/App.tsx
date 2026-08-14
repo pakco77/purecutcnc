@@ -58,8 +58,6 @@ const DEPTH_LEGEND_CODEC = {
 
 function App() {
   const [centerTab, setCenterTab] = useState<'sketch' | 'preview3d' | 'simulation'>('sketch')
-  const [rightTab, setRightTab] = useState<'operations' | 'tools'>('operations')
-  const [workspaceLayout, setWorkspaceLayout] = useState<'lcr' | 'lc' | 'c' | 'cr'>('lcr')
   const tabletShell = isTabletMode(useShellMode())
   const [selectedOperationId, setSelectedOperationId] = useState<string | null>(null)
   const [simulationDetailCells, setSimulationDetailCells] = useState(280)
@@ -200,9 +198,13 @@ function App() {
     [centerTab, startSimulationTransition],
   )
 
+  const handleRightTabChange = useCallback((tab: 'operations' | 'tools') => {
+    if (tab === 'operations') window.dispatchEvent(new CustomEvent('purecutcnc:open-task', { detail: 'operations' }))
+  }, [])
+
   const featureActions = useFeatureTreeActions({
     setCenterTab,
-    setRightTab,
+    setRightTab: handleRightTabChange,
     closeTreeContextMenu,
     onSelectedOperationIdChange: handleSelectedOperationIdChange,
   })
@@ -227,6 +229,7 @@ function App() {
   const {
     toolpathMap,
     generateToolpathForOperation,
+    generateAllToolpaths,
     getGenerationTrace,
     generatingOperationIds,
     selectedToolpath,
@@ -240,7 +243,6 @@ function App() {
     // instead of one per pointermove.
     history.transactionStart !== null,
   )
-  void toolpathMap
 
   const { simulationResult, simulationOperationCount, simulationPlaybackInput } = useSimulationModel({
     project,
@@ -378,6 +380,7 @@ function App() {
       <AppShell
         globalToolbar={
           <GlobalToolbar
+            showProjectName={false} showAppearance={false} showImport={false}
             onZoomToModel={handleZoomToModel}
             onZoomWindow={onZoomWindow}
             zoomWindowActive={zoomWindowActive}
@@ -469,25 +472,30 @@ function App() {
         }
         featureTree={<FeatureTree onFeatureContextMenu={openFeatureContextMenu} onTabContextMenu={openTabContextMenu} onClampContextMenu={openClampContextMenu} />}
         propertiesPanel={<PropertiesPanel />}
-        camPanel={
-          <CAMPanel
-            mode={rightTab === 'tools' ? 'tools' : 'operations'}
-            selectedOperationId={effectiveSelectedOperationId}
-            onSelectedOperationIdChange={handleSelectedOperationIdChange}
-            onExport={() => setExportDialogRequest({})}
+        operationsTaskPanel={
+          <CAMPanel mode="operations" display="task" selectedOperationId={effectiveSelectedOperationId}
+            onSelectedOperationIdChange={handleSelectedOperationIdChange} onExport={() => setExportDialogRequest({})}
             onExportOperation={(operationId) => setExportDialogRequest({ operationIds: [operationId] })}
-            generateToolpath={generateToolpathForOperation}
-            toolpathWarnings={selectedToolpath?.warnings ?? null}
-            generatingOperationIds={generatingOperationIds}
-            onOperationHighlightChange={setOperationHighlightKind}
-          />
+            generateToolpath={generateToolpathForOperation} toolpathWarnings={selectedToolpath?.warnings ?? null}
+            generatingOperationIds={generatingOperationIds} onOperationHighlightChange={setOperationHighlightKind} />
+        }
+        operationInspector={
+          <CAMPanel mode="operations" display="inspector" selectedOperationId={effectiveSelectedOperationId}
+            onSelectedOperationIdChange={handleSelectedOperationIdChange} onExport={() => setExportDialogRequest({})}
+            onExportOperation={(operationId) => setExportDialogRequest({ operationIds: [operationId] })}
+            generateToolpath={generateToolpathForOperation} toolpathWarnings={selectedToolpath?.warnings ?? null}
+            generatingOperationIds={generatingOperationIds} />
+        }
+        toolsPanel={
+          <CAMPanel mode="tools" selectedOperationId={effectiveSelectedOperationId}
+            onSelectedOperationIdChange={handleSelectedOperationIdChange} generateToolpath={generateToolpathForOperation}
+            onExport={() => setExportDialogRequest({})} onExportOperation={(operationId) => setExportDialogRequest({ operationIds: [operationId] })}
+            toolpathWarnings={selectedToolpath?.warnings ?? null} generatingOperationIds={generatingOperationIds} />
         }
         centerTab={centerTab}
         onCenterTabChange={handleCenterTabChange}
-        workspaceLayout={workspaceLayout}
-        onWorkspaceLayoutChange={setWorkspaceLayout}
-        rightTab={rightTab}
-        onRightTabChange={setRightTab}
+        generatedOperationIds={new Set(toolpathMap.keys())}
+        onGenerateToolpaths={generateAllToolpaths} onOpenImport={() => setShowImportDialog(true)} onExportGcode={() => setExportDialogRequest({})}
         statusBarExtras={collapsedDepthLegend}
         onZoomToModel={handleZoomToModel}
         onZoomWindow={onZoomWindow}

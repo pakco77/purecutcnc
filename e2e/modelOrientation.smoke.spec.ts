@@ -76,7 +76,11 @@ async function importBox(page: Page): Promise<void> {
 }
 
 async function openOrientationSection(page: Page): Promise<void> {
-  await page.locator('.tree-row--feature').first().click()
+  const featureRow = page.locator('.tree-row--feature').first()
+  if (!(await featureRow.isVisible())) {
+    await page.locator('.task-function').filter({ hasText: 'Geometry' }).click()
+  }
+  await featureRow.click()
   await expect(page.locator('.properties-panel')).toBeVisible()
   const header = page.getByRole('button', { name: '3D orientation' })
   await expect(header).toBeVisible()

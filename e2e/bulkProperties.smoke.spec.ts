@@ -297,6 +297,7 @@ test.describe('Bulk properties browser smoke', () => {
 
       // Two tab rows selected, bulk panel visible.
       await expect(app.page.locator(selectedTabRows())).toHaveCount(2)
+      await app.page.locator('.task-inspector-toggle').click()
       await expect(ui.properties.panel(app.page)).toContainText('2 Tabs')
       await expect(ui.properties.zRangeSlider(app.page)).toBeAttached()
     })
@@ -322,6 +323,7 @@ test.describe('Bulk properties browser smoke', () => {
       await canvas.tap({ position: ptB })
 
       await expect(app.page.locator(selectedClampRows())).toHaveCount(2)
+      await app.page.locator('.task-inspector-toggle').click()
       await expect(ui.properties.panel(app.page)).toContainText('2 Clamps')
       await expect(ui.properties.zRangeSlider(app.page)).toBeAttached()
     })
@@ -871,6 +873,7 @@ test.describe('Bulk properties browser smoke', () => {
 
         // Two clamps selected, bulk panel visible.
         await expect(app.page.locator(selectedClampRows())).toHaveCount(2)
+        await app.page.locator('.task-inspector-toggle').click()
         await expect(ui.properties.panel(app.page)).toContainText('2 Clamps')
 
         // Snapshot before delete.
@@ -884,10 +887,8 @@ test.describe('Bulk properties browser smoke', () => {
 
         // Open the context menu the way a tablet user does: the "⋮" More-actions
         // button on a selected clamp row. There is no right-click on touch, so
-        // this button is the only real routing path into the bulk menu. The tree
-        // lives in the tablet project drawer, which must be opened first — the
-        // rows are in the DOM but translated outside the viewport while closed.
-        await ui.tree.openProjectPanelButton(app.page).tap()
+        // this button is the only real routing path into the bulk menu. The seed
+        // helper leaves the full object tree open in the Geometry task drawer.
 
         const selectedClampRow = app.page.locator(selectedClampRows()).nth(1)
         const moreButton = ui.tree.rowMoreButton(selectedClampRow)

@@ -21,7 +21,9 @@ const GOATCOUNTER_ENDPOINT = 'https://purecutcnc.goatcounter.com/count'
 const GOATCOUNTER_SRC = 'https://gc.zgo.at/count.js'
 
 export function installAnalytics(): void {
-  if (typeof document === 'undefined' || isDesktop) {
+  // E2E uses a webdriver-controlled Chromium; do not make its result depend
+  // on an external analytics host being reachable.
+  if (typeof document === 'undefined' || isDesktop || navigator.webdriver) {
     return
   }
 

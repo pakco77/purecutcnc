@@ -23,6 +23,7 @@ function GlobalActions({
   onNew,
   onOpen,
   onImport,
+  showImport = true,
   onExportModel,
   onPrintDesign,
   onSave,
@@ -38,6 +39,7 @@ function GlobalActions({
   onNew: () => void
   onOpen: () => void
   onImport: () => void
+  showImport?: boolean
   onExportModel: () => void
   onPrintDesign: () => void
   onSave: () => void
@@ -54,7 +56,7 @@ function GlobalActions({
       <div className="toolbar-group">
         <ToolbarActionButton icon="new" label={t('file.newProject')} onClick={onNew} />
         <ToolbarActionButton icon="open" label={t('file.openProject')} onClick={onOpen} />
-        <ToolbarActionButton icon="import" label={t('file.importGeometry')} onClick={onImport} />
+        {showImport ? <ToolbarActionButton icon="import" label={t('file.importGeometry')} onClick={onImport} /> : null}
         <ToolbarActionButton icon="export" label={t('file.exportModel')} onClick={onExportModel} />
         <ToolbarActionButton icon="print" label={t('file.printDesign')} onClick={onPrintDesign} />
         <ToolbarActionButton

@@ -36,27 +36,33 @@ export function GlobalToolbar({
   activeSnapMode,
   onToggleSnapEnabled,
   onToggleSnapMode,
-}: ToolbarProps & SnapToolbarProps) {
+  showProjectName = true,
+  showAppearance = true,
+  showImport = true,
+}: ToolbarProps & SnapToolbarProps & { showProjectName?: boolean; showAppearance?: boolean; showImport?: boolean }) {
   const toolbar = useToolbarState(onZoomToModel, onImportComplete, onExportModel, onPrintDesign)
 
   return (
     <>
       <div className="toolbar toolbar--global">
-        <ProjectNameControl
-          projectName={toolbar.project.meta.name}
-          dirty={toolbar.dirty}
-          editingName={toolbar.editingName}
-          nameVal={toolbar.nameVal}
-          setNameVal={toolbar.setNameVal}
-          setEditingName={toolbar.setEditingName}
-          setProjectName={toolbar.setProjectName}
-        />
+        {showProjectName ? (
+          <ProjectNameControl
+            projectName={toolbar.project.meta.name}
+            dirty={toolbar.dirty}
+            editingName={toolbar.editingName}
+            nameVal={toolbar.nameVal}
+            setNameVal={toolbar.setNameVal}
+            setEditingName={toolbar.setEditingName}
+            setProjectName={toolbar.setProjectName}
+          />
+        ) : null}
         <GlobalActions
           historyLengthPast={toolbar.historyLengthPast}
           historyLengthFuture={toolbar.historyLengthFuture}
           onNew={toolbar.fileCommands.newProject.onActivate}
           onOpen={toolbar.fileCommands.openProject.onActivate}
           onImport={toolbar.fileCommands.importGeometry.onActivate}
+          showImport={showImport}
           onExportModel={toolbar.fileCommands.exportModel.onActivate}
           onPrintDesign={toolbar.fileCommands.printDesign.onActivate}
           onSave={toolbar.fileCommands.saveProject.onActivate}
@@ -84,10 +90,12 @@ export function GlobalToolbar({
           onDeleteDimension={toolbar.sketchCommands.dimension.deleteDimension.onActivate}
           onToggleShowDimensions={toolbar.sketchCommands.dimension.showDimensions.onActivate}
         />
-        <div className="toolbar-group toolbar-group--appearance">
-          <AppearanceControl />
-          <LanguageControl />
-        </div>
+        {showAppearance ? (
+          <div className="toolbar-group toolbar-group--appearance">
+            <AppearanceControl />
+            <LanguageControl />
+          </div>
+        ) : null}
       </div>
       <ToolbarDialog
         showNewProjectDialog={toolbar.showNewProjectDialog}

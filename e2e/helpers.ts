@@ -33,6 +33,7 @@ export async function seedProject(page: Page, json: string): Promise<void> {
   await page.evaluate(async ({ json: j }: { json: string }) => {
     const w = window as unknown as { __pcTest: { loadProject: (s: string) => Promise<void> } }
     await w.__pcTest.loadProject(j)
+    window.dispatchEvent(new CustomEvent('purecutcnc:open-task', { detail: 'geometry' }))
   }, { json })
 }
 

@@ -45,6 +45,7 @@ test.describe('Feature references browser smoke', () => {
 
   test('app boots clean — canvas + feature tree present', async ({ app, ui }) => {
     await expect(ui.canvas.any(app.page)).toBeAttached()
+    await app.page.locator('.task-function').filter({ hasText: 'Geometry' }).click()
     await expect(ui.tree.rows(app.page).first()).toBeAttached()
   })
 

@@ -50,6 +50,9 @@ test.describe('CAM operation browser smoke', () => {
     await clickMenuItem(ui.contextMenu.submenu(app.page), 'Create outside route')
     await expect(ui.operations.rowByName(app.page, 'Edge route outside Rough')).toBeVisible()
 
+    // The task shell opens Operations after a quick operation. Return to the
+    // independent Geometry task before creating the second operation.
+    await app.page.locator('.task-function').filter({ hasText: 'Geometry' }).click()
     const carveMenu = await openRowContextMenu(app.page, rowByName(app.page, 'Carve Target'))
     await ui.contextMenu.item(carveMenu, 'Create operation').hover()
     await clickMenuItem(ui.contextMenu.submenu(app.page), 'Create V-carve (medial)')
@@ -422,6 +425,10 @@ test.describe('CAM operation browser smoke', () => {
     await clickMenuItem(ui.contextMenu.submenu(app.page), 'Create pocket')
     await expect(ui.operations.rows(app.page)).toHaveCount(1)
 
+    // Creating a quick operation routes the task shell to Operations. Return
+    // to Geometry before the next feature-tree context-menu interaction.
+    await app.page.locator('.task-function').filter({ hasText: 'Geometry' }).click()
+
     // The subtract circle is a compatible pocket target: it must appear under
     // "Add to operation" and clicking it merges it into the target.
     const drillMenu = await openRowContextMenu(app.page, rowByName(app.page, 'Drill Target'))
@@ -446,6 +453,7 @@ test.describe('CAM operation browser smoke', () => {
     const carveMenu2 = await openRowContextMenu(app.page, rowByName(app.page, 'Carve Target'))
     await ui.contextMenu.item(carveMenu2, 'Remove from operation').hover()
     await expect(ui.contextMenu.item(ui.contextMenu.submenu(app.page), 'Pocket Rough')).toBeDisabled()
+    await app.page.keyboard.press('Escape')
 
     // An incompatible feature (add rect vs. pocket) sees no add candidates.
     const addMenu = await openRowContextMenu(app.page, rowByName(app.page, 'Machinable Add'))

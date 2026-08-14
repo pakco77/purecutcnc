@@ -166,4 +166,7 @@ const GCODE_EXPORT_FIXTURE_JSON = buildGcodeExportProjectJson()
 
 export async function seedGcodeExportProject(page: Page): Promise<void> {
   await seedProject(page, GCODE_EXPORT_FIXTURE_JSON)
+  await page.evaluate(() => {
+    window.dispatchEvent(new CustomEvent('purecutcnc:open-task', { detail: 'operations' }))
+  })
 }

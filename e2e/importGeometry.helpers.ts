@@ -157,11 +157,16 @@ export async function selectSourceUnitsMm(dialog: Locator): Promise<void> {
 }
 
 /**
- * Open the Import Geometry dialog via the toolbar, wait for it to be
- * visible, and return the dialog locator.
+ * Open the Import Geometry dialog via the task bar, wait for it to be
+ * visible, and return the dialog locator. The Import task may already be open
+ * after a previous import, so do not toggle it closed on the second call.
  */
 export async function openImportDialog(page: import('@playwright/test').Page): Promise<Locator> {
-  await page.locator('button[aria-label="Import geometry"]').click()
+  const chooseFile = page.getByRole('button', { name: 'Choose geometry or model', exact: true })
+  if (!(await chooseFile.isVisible())) {
+    await page.locator('.task-function').filter({ hasText: 'Import' }).click()
+  }
+  await chooseFile.click()
   const dialog = page.locator('.dialog--import')
   await dialog.waitFor({ state: 'visible', timeout: 5000 })
   return dialog

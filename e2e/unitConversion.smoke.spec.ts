@@ -179,8 +179,9 @@ test.describe('tablet unit conversion dialog', () => {
 
   test('fits the viewport with touch-sized decisions', async ({ app, ui }) => {
     await seedInchProject(app.page)
-    await ui.tree.openProjectPanelButton(app.page).click()
-    await ui.tree.projectRow(app.page).click()
+    await app.page.locator('.task-function').filter({ hasText: 'Workpiece' }).click()
+    await app.page.getByRole('button', { name: 'Project settings', exact: true }).click()
+    await app.page.locator('.task-inspector-toggle').click()
     await chooseUnits(app.page, ui, 'Millimeters')
 
     const dialog = ui.unitConversionDialog.root(app.page)

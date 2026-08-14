@@ -275,9 +275,15 @@ async function sampleCanvas(page: Page, sketchCanvas: Locator): Promise<Set<stri
   return new Set(await dominantPixelGroups(sketchCanvas))
 }
 
+/** The task shell starts on Workflow; feed-colour assertions select an operation. */
+async function openOperations(page: Page): Promise<void> {
+  await page.locator('.task-function').filter({ hasText: 'Operations' }).click()
+}
+
 test.describe('Feed-coloured toolpath smoke', () => {
   test('engagement pocket renders cut segments in multiple colours with the toggle on', async ({ app, ui }) => {
     await seedProject(app.page, ENGAGEMENT_FIXTURE_JSON)
+    await openOperations(app.page)
 
     // The panel only renders once the generated toolpath exists.
     const panel = ui.toolpathVis.sketchPanel(app.page)
@@ -308,6 +314,7 @@ test.describe('Feed-coloured toolpath smoke', () => {
 
   test('engagement pocket at 75% slot feed renders the derived ramp and legend', async ({ app, ui }) => {
     await seedProject(app.page, buildFeedColoursProjectJson('engagement', 75))
+    await openOperations(app.page)
 
     const panel = ui.toolpathVis.sketchPanel(app.page)
     await expect(panel).toBeVisible({ timeout: 30000 })
@@ -347,6 +354,7 @@ test.describe('Feed-coloured toolpath smoke', () => {
 
   test('slots-only pocket renders cut segments in exactly one colour with the toggle on', async ({ app, ui }) => {
     await seedProject(app.page, SLOTS_ONLY_FIXTURE_JSON)
+    await openOperations(app.page)
 
     const panel = ui.toolpathVis.sketchPanel(app.page)
     await expect(panel).toBeVisible({ timeout: 30000 })
@@ -379,6 +387,7 @@ test.describe('Feed-coloured toolpath smoke', () => {
 
   test('slots-only pocket at 60% slot feed shows only its emitted rung and hides the legend when the toggle is off', async ({ app, ui }) => {
     await seedProject(app.page, SLOTS_ONLY_SLOT_FEED_60_JSON)
+    await openOperations(app.page)
 
     const panel = ui.toolpathVis.sketchPanel(app.page)
     await expect(panel).toBeVisible({ timeout: 30000 })
@@ -404,6 +413,7 @@ test.describe('Feed-coloured toolpath smoke', () => {
 
   test('mixed pockets show the union of emitted scales in both panels, independent of selection', async ({ app, ui }) => {
     await seedProject(app.page, MIXED_FIXTURE_JSON)
+    await openOperations(app.page)
 
     const panel = ui.toolpathVis.sketchPanel(app.page)
     await expect(panel).toBeVisible({ timeout: 30000 })

@@ -10,7 +10,7 @@ Toolbar internals split out from `src/components/layout/Toolbar.tsx`. The parent
 - `ToolbarPopoverMenu.tsx` — portaled hover/click popover menu used by grouped commands.
 - `ToolbarDialog.tsx` — portaled new/import/text dialogs launched by toolbar commands.
 - `ProjectNameControl.tsx` — project name and dirty-state control.
-- `GlobalActions.tsx` — file/history/zoom action group.
+- `GlobalActions.tsx` — file/history/zoom action group; the task shell suppresses its duplicate Import entry.
 - `CreationActions.tsx` — feature/region creation target and shape picker group.
 - `FeatureEditActions.tsx` — selected-feature transform/edit action group.
 - `AlignmentActions.tsx` — align and distribute popover groups.

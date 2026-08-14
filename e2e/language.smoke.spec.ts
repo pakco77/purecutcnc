@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
+import type { Page } from '@playwright/test'
 import { test, expect } from './fixtures'
 import { clickMenuItem, getProject, openRowContextMenu, seedProject } from './helpers'
 import { buildLinkedProjectJson } from './featureReferences.helpers'
 
 const STORAGE_KEY = 'purecutcnc.i18n.locale'
+
+async function exposeProjectActions(page: Page): Promise<void> {
+  await page.locator('.task-project-actions').evaluate((element) => {
+    (element as HTMLDetailsElement).open = true
+  })
+}
 
 function withoutModified(snapshot: Record<string, unknown>): Record<string, unknown> {
   const meta = snapshot.meta as Record<string, unknown>
@@ -105,6 +112,7 @@ test('switches to Simplified Chinese, persists, and never touches the project', 
 
   // Document language and visible toolbar copy follow the locale.
   await expect(app.page.locator('html')).toHaveAttribute('lang', 'zh-CN')
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: '新建项目' })).toBeVisible()
   await expect(app.page.getByRole('button', { name: '捕捉到网格' })).toBeVisible()
   await expect(ui.language.trigger(app.page)).toHaveAttribute('aria-label', '语言：简体中文')
@@ -123,6 +131,7 @@ test('switches to Simplified Chinese, persists, and never touches the project', 
   await ui.language.trigger(app.page).click()
   await ui.language.option(app.page, 'English').click()
   await expect(app.page.locator('html')).toHaveAttribute('lang', 'en')
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: 'New project' })).toBeVisible()
   expect(await app.page.evaluate((key) => window.localStorage.getItem(key), STORAGE_KEY)).toBe('en')
 })
@@ -134,6 +143,7 @@ test('switches to French, persists, and renders representative workflow copy', a
   await ui.language.option(app.page, 'Français').click()
 
   await expect(app.page.locator('html')).toHaveAttribute('lang', 'fr')
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: 'Nouveau projet' })).toBeVisible()
   await expect(app.page.getByRole('button', { name: 'Accrocher à la grille' })).toBeVisible()
   await expect(ui.language.trigger(app.page)).toHaveAttribute('aria-label', 'Langue : Français')
@@ -155,6 +165,7 @@ test('switches to Spanish, persists, and never touches the project', async ({ ap
   await ui.language.option(app.page, 'Español').click()
 
   await expect(app.page.locator('html')).toHaveAttribute('lang', 'es')
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: 'Nuevo proyecto' })).toBeVisible()
   await expect(app.page.getByRole('button', { name: 'Ajustar a la cuadrícula' })).toBeVisible()
   await expect(ui.language.trigger(app.page)).toHaveAttribute('aria-label', 'Idioma: Español')
@@ -182,6 +193,7 @@ test('switches to German, persists across reload, and never touches the project'
 
   // Document language and visible toolbar copy follow the locale.
   await expect(app.page.locator('html')).toHaveAttribute('lang', 'de')
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: 'Neues Projekt' })).toBeVisible()
   await expect(app.page.getByRole('button', { name: 'Am Raster fangen' })).toBeVisible()
   await expect(ui.language.trigger(app.page)).toHaveAttribute('aria-label', 'Sprache: Deutsch')
@@ -200,6 +212,7 @@ test('switches to German, persists across reload, and never touches the project'
   await ui.language.trigger(app.page).click()
   await ui.language.option(app.page, 'English').click()
   await expect(app.page.locator('html')).toHaveAttribute('lang', 'en')
+  await exposeProjectActions(app.page)
   await expect(app.page.getByRole('button', { name: 'New project' })).toBeVisible()
   expect(await app.page.evaluate((key) => window.localStorage.getItem(key), STORAGE_KEY)).toBe('en')
 })
@@ -286,6 +299,7 @@ test.describe('tablet language selector', () => {
 
     await spanishOption.click()
     await expect(app.page.locator('html')).toHaveAttribute('lang', 'es')
+    await exposeProjectActions(app.page)
     await expect(app.page.getByRole('button', { name: 'Nuevo proyecto' })).toBeVisible()
 
     // The French row must clear the same touch-target floor (same CI

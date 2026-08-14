@@ -325,6 +325,7 @@ export function useToolpathGeneration(
 ): {
   toolpathMap: Map<string, ToolpathResult>
   generateToolpathForOperation: (op: Operation | null) => ToolpathResult | null
+  generateAllToolpaths: () => void
   getGenerationTrace: (operation: Operation) => ToolpathGenerationTrace | null
   generatingOperationIds: Set<string>
   selectedToolpath: ToolpathResult | null
@@ -399,6 +400,16 @@ export function useToolpathGeneration(
     },
     [project]
   )
+
+  const generateAllToolpaths = useCallback(() => {
+    const next = new Map(toolpathMap)
+    for (const operation of project.operations) {
+      if (!operation.enabled) continue
+      const result = generateToolpathForOperation(operation)
+      if (result) next.set(operation.id, result)
+    }
+    setToolpathMap(next)
+  }, [generateToolpathForOperation, project.operations, toolpathMap])
 
   // Debug-only (issue #356): produce a {raw, optimized} trace for one operation.
   // Forces a fresh compute (deleting the cache entry bypasses the cache-hit
@@ -499,6 +510,7 @@ export function useToolpathGeneration(
   return {
     toolpathMap,
     generateToolpathForOperation,
+    generateAllToolpaths,
     getGenerationTrace,
     generatingOperationIds,
     selectedToolpath,

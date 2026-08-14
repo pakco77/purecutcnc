@@ -60,6 +60,8 @@ import { camT, camTPlural } from './camI18n'
 
 interface CAMPanelProps {
   mode: 'operations' | 'tools'
+  /** Render both operation sections, only the task list, or only the Inspector properties. */
+  display?: 'all' | 'task' | 'inspector'
   selectedOperationId: string | null
   onSelectedOperationIdChange: (operationId: string | null) => void
   onExport: () => void
@@ -565,6 +567,7 @@ function getOperationTargetUpdateHint(project: Project, selection: SelectionStat
 
 export function CAMPanel({
   mode,
+  display = 'all',
   selectedOperationId: selectedOperationIdProp,
   onSelectedOperationIdChange,
   onExport,
@@ -2077,11 +2080,11 @@ export function CAMPanel({
   }
 
   return (
-    <div className="cam-panel">
+    <div className={`cam-panel cam-panel--${display}`}>
       {mode === 'operations' ? (
         <div className="cam-operations-shell">
           <PanelSplit className="cam-operations-layout" storageKey="operations" initialRatio={0.54} minFirst={160} minSecond={160}>
-            <section className="cam-section cam-section--tree">
+            {display !== 'inspector' ? <section className="cam-section cam-section--tree">
               <div className="cam-section-header">
                 <span>{camT('cam.panel.operations')}</span>
                 <span className="feature-count">{project.operations.length}</span>
@@ -2281,9 +2284,9 @@ export function CAMPanel({
                 )}
                 </div>
               </div>
-            </section>
+            </section> : null}
 
-            <section className="cam-section cam-section--properties">
+            {display !== 'task' ? <section className="cam-section cam-section--properties">
               <div className="cam-section-header">
                 <span>{camT('cam.panel.properties')}</span>
                 <div className="cam-section-header-actions">
@@ -2319,7 +2322,7 @@ export function CAMPanel({
                 {renderOperationProperties()}
                 </div>
               </div>
-            </section>
+            </section> : null}
           </PanelSplit>
         </div>
       ) : (

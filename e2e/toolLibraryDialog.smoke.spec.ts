@@ -14,11 +14,21 @@
  * limitations under the License.
  */
 
+import type { Page } from '@playwright/test'
 import { test, expect } from './fixtures'
+
+async function openToolManager(page: Page): Promise<void> {
+  const trigger = page.getByRole('button', { name: 'Manage project tools', exact: true })
+  if (!(await trigger.isVisible())) {
+    await page.locator('.task-function').filter({ hasText: 'Operations' }).click()
+  }
+  await trigger.click()
+  await expect(page.getByRole('dialog', { name: 'Manage project tools' })).toBeVisible()
+}
 
 test.describe('Tool library import dialog smoke', () => {
   test('opens the dialog when trigger clicked', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     const trigger = app.page.getByRole('button', { name: /Import from library/ })
     await expect(trigger).toBeVisible()
     await trigger.click()
@@ -37,7 +47,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('closes via close button without mutation', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -53,7 +63,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('closes via Escape key', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -64,18 +74,18 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('closes via backdrop click', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
     await expect(dialog).toBeVisible()
 
-    await app.page.locator('.dialog-backdrop').click({ position: { x: 2, y: 2 } })
+    await dialog.locator('..').click({ position: { x: 2, y: 2 } })
     await expect(dialog).not.toBeVisible()
   })
 
   test('search filters library tools', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -94,7 +104,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('selects and imports a new tool', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
 
     const initialCount = await app.page.locator('.cam-tool-tree .tree-row--feature').count()
 
@@ -136,7 +146,7 @@ test.describe('Tool library import dialog smoke', () => {
     // Regression: when every filtered entry is already imported the dialog
     // must show a compact banner AND still render each imported row with its
     // disabled checkbox and In-project label — not replace the rows.
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -186,7 +196,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('disables already-imported tools', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
 
     // First import a tool
     await app.page.getByRole('button', { name: /Import from library/ }).click()
@@ -207,7 +217,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('import button is disabled with no new tools selected', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -218,7 +228,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('restores focus to trigger on close', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
 
     const trigger = app.page.getByRole('button', { name: /Import from library/ })
     await trigger.click()
@@ -229,7 +239,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('selected tool remains counted and importable after search hides it', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -262,7 +272,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('Tab and Shift+Tab cannot escape the dialog focus trap', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -306,7 +316,7 @@ test.describe('Tool library import dialog smoke', () => {
     })
 
     try {
-      await app.page.getByRole('tab', { name: 'Tools' }).click()
+      await openToolManager(app.page)
       await app.page.getByRole('button', { name: /Import from library/ }).click()
 
       const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -335,7 +345,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('filter bar and results span the full dialog width', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -360,7 +370,7 @@ test.describe('Tool library import dialog smoke', () => {
   })
 
   test('Escape closes an open filter dropdown before the dialog', async ({ app }) => {
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -417,7 +427,7 @@ test.describe('Tool library import dialog smoke', () => {
     })
 
     try {
-      await app.page.getByRole('tab', { name: 'Tools' }).click()
+      await openToolManager(app.page)
       await app.page.getByRole('button', { name: /Import from library/ }).click()
 
       const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })
@@ -460,8 +470,7 @@ test.describe('Tool library import dialog — tablet', () => {
     await expect(shell).toHaveAttribute('data-shell-mode', 'tablet')
 
     // On tablet the right panel is a hidden slide-in drawer — open it first.
-    await app.page.getByRole('button', { name: 'Open operations panel' }).click()
-    await app.page.getByRole('tab', { name: 'Tools' }).click()
+    await openToolManager(app.page)
     await app.page.getByRole('button', { name: /Import from library/ }).click()
 
     const dialog = app.page.getByRole('dialog', { name: 'Import tools from library' })

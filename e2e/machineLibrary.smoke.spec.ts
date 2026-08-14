@@ -32,7 +32,7 @@ import {
 const CUSTOM_MACHINES_KEY = 'purecutcnc.machines.customMachines'
 
 async function openManager(page: Page, ui: typeof import('./selectors')): Promise<void> {
-  await ui.tree.projectRow(page).click()
+  await page.locator('.task-machine-state').click()
   await ui.properties.manageMachines(page).click()
   await expect(ui.machineManager.dialog(page)).toBeVisible()
 }
@@ -105,7 +105,7 @@ test('a stale project copy warns without changing anything until asked', async (
   expect(kept.definitions[0].description).toBe('Fixture controller')
 
   // The badge persists after the notice is dismissed.
-  await ui.tree.projectRow(app.page).click()
+  await app.page.locator('.task-machine-state').click()
   await expect(ui.properties.machineStatus(app.page)).toContainText('Update available')
 
   // The manager shows the comparison and only then replaces the copy.
